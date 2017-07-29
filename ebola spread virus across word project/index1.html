@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang="en">
+<head>
+ 
+ <style>
+ path {
+  fill: #ccc;
+  stroke: black;
+  }
+body {
+  font: 10px sans-serif;
+}
+.axis {
+	  font: 10px sans-serif;
+	}
+
+	
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke:black ;
+  stroke-width: 1.5px;
+  }
+  .axis {
+	  font: 10px sans-serif;
+	}
+
+	div.tooltip {   
+  position: absolute;           
+  text-align: center;           
+  width: 150px;                  
+  height: 25px;                 
+  padding: 2px;             
+  font-size: 10px;     
+  background: #FFFFE0;
+  border: 1px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}     
+	
+	
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+.docolor{
+ fill: red !important;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+
+
+
+.boundary {
+  fill: none;
+  stroke: black;
+  stroke-width: .5px;
+}
+path.state-boundary {
+  stroke: red;
+  stroke-width: .5px;
+}
+.q0-11{fill:rgb(166,206,227)} .q1-11{fill:rgb(31,120,180)}  .q2-11{fill:rgb(178,223,138)}  .q3-11{fill:rgb(51,160,44)}  .q4-11{fill:rgb(251,154,153)}  .q5-11{fill:rgb(227,26,28)}  .q6-11{fill:rgb(253,191,111)}  .q7-11{fill:rgb(255,127,0)}  .q8-11{fill:rgb(202,178,214)}  .q9-11{fill:rgb(106,61,154)}  .q10-11{fill:rgb(255,255,153)}
+  #header {
+    background-color:grey;
+    color:white;
+    text-align:center;
+    padding:5px;
+} 
+#nav {
+    
+    background-color:#eeeeee;
+    
+    width:400px;
+   float : down;
+    padding:10px; 
+}
+  </style>
+
+ 
+
+ <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="https://d3js.org/d3-queue.v2.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+
+
+  </head>
+<body>
+<body bgcolor="white">
+  
+ <div id="header">
+ <h1>VISUALIZATION OF E-BOLA SPREAD ACROSS MULTIPLE GEOGRAPHICAL REGION OVER TIME  </h1>
+ </div>
+ <br> 
+ </br>
+ <h2> Total number of probable, confirmed and suspected Ebola cases and deaths in Guinea, Liberia, Sierra Leone, Italy, Mali, United Kingdom, United States of America, Nigeria, Senegal and Spain*. The data is extracted from -  <p><a href="http://apps.who.int/gho/data/node.ebola-sitrep">WHO Ebola data and statistics</a></p></h2>
+ <h2> Visualization 1</h2>
+ 
+ 
+ <h2> Choropleth world map showing countries with confirmed Ebola deaths </h2>
+ <br/>
+
+
+<br/>
+</br>
+
+
+
+<div id="deathmap"></div>
+<script type="text/javascript">
+
+// refrence used http://bl.ocks.org/mbostock/3757132
+
+var width = 1200,
+    height = 500;
+	
+var projection = d3.geo.mercator()
+    .scale((width + 1) / 2 / Math.PI)
+    .translate([width / 2, height / 2])
+    .precision(.1);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+
+
+var svg = d3.select("#deathmap").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+
+d3.json("https://gist.githubusercontent.com/skumar123908/660dc09f596b9a450ac6ae089c14a237/raw/cc928f5b2ee4ec6a7eb1a820634fc747692a5573/worldname.json", function(error, world) {
+  if (error) throw error;
+d3.json("https://gist.githubusercontent.com/skumar123908/dae8e8fb80de8ab1cf6ea526653be077/raw/6c6a06abc7b09dae5e8a7a55cc2dc3ea6c2c42ac/ebolaeffectedcountries.json", function(error, data){
+   var stops1 = new Object();
+function stopsFor1(d){
+	var monthtemp = d.FIELD3.substring(0,7);
+	var month = new Date(monthtemp); 
+	var value = d.FIELD4;
+	var cas = d.FIELD1.substring(d.FIELD1.length,0);
+	var country = d.FIELD2;
+	var type = d.FIELD1.substring(d.FIELD1.length,0);
+	
+	
+	var ckey=month+","+cas+","+country
+	
+      if(stops1[ckey]){
+		
+        stops1[ckey].value += parseInt(value);
+      }else {
+		  
+		  
+        stops1[ckey] = {month:month,value: 0,country:country,type:type};
+		stops1[ckey].value = parseInt(value);
+      }
+  }
+   
+   var nr1 =[];
+  data.forEach(stopsFor1);
+   for(var p in stops1){
+	  nr1.push({month:stops1[p].month,value:stops1[p].value,country:stops1[p].country,type:stops1[p].type});
+  }
+  console.log(nr1);
+  var nrcase = d3.map();
+  console.log("NR1", nr1);
+  var daa = nr1.filter(function(n){
+	return n.type === "Cumulative number of confirmed Ebola deaths";
+  });
+  console.log("daa", daa);
+  
+  var countrydata = d3.nest()
+			  .key(function(d){ return d.country; })
+			  .rollup(function(d){ return d3.sum( d.map(function(id){ return id.value; }) ) })
+			 .entries(daa);
+			 
+  
+    nr1.forEach(function(d){
+		if(d.type =="Cumulative number of confirmed Ebola cases"){
+	nrcase.set(d.country,d.value);	
+		}
+	})
+	console.log(nrcase.hasOwnProperty("Nigeria"));
+	var dom = countrydata.map(function(d){
+		console.log("C", d.key, d.values);
+		return d.values;
+	})
+	
+	var mapcolor = d3.scale.quantile()
+	.domain(dom).range(d3.range(11).map(function(i){
+		return "q"+i+"-11";	}));
+	
+	var div = d3.select("body").append("div")   
+  .attr("class", "tooltip")               
+  .style("opacity", 0);
+	
+	svg.append("g")
+	  .selectAll("path")
+	  .data(world.features)
+	  .enter().append("path")
+	  .attr("d", path)
+	  
+	  .style("stroke", "darkred")
+	  .attr("class",function(d){ return mapcolor(nrcase.get(d.properties.name));})
+      .style("opacity", 0.8)
+
+  //Adding mouse events
+  .on("mouseover", function(d) {
+    d3.select(this).transition().duration(300).style("opacity", 1);
+    div.transition().duration(300)
+    .style("opacity", 1)
+    div.text(d.properties.name)
+    .style("left", (d3.event.pageX) + "px")
+    .style("top", (d3.event.pageY -30) + "px");
+  })
+  .on("mouseout", function() {
+    d3.select(this)
+    .transition().duration(300)
+    .style("opacity", 0.8);
+    div.transition().duration(300)
+    .style("opacity", 0);
+  })
+ 
+
+	  
+	  
+} );
+});
+
+
+
+
+ </script>
+ 
+ 
+ <h2>Multi Line Chart </h2>
+<h3> The multi line chart analyses the country with cumulative number of confirmed Ebola deaths</h3> 
+<br/>
+<br/>
+ <div id="linechartdeath"></div> 
+ <script type="text/javascript">
+ 
+
+// refrence used http://bl.ocks.org/KoGor/5685876
+//https://bl.ocks.org/mbostock/3884955
+
+	
+	var margin = {top: 20, right: 100, bottom: 60, left: 50},
+    width = 900 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+	
+	var parseDate = d3.time.format("%Y%m%d");
+	
+	// reference used for this part https://bl.ocks.org/mbostock/3884955
+	
+	d3.json("https://gist.githubusercontent.com/skumar123908/dae8e8fb80de8ab1cf6ea526653be077/raw/6c6a06abc7b09dae5e8a7a55cc2dc3ea6c2c42ac/ebolaeffectedcountries.json", function(error, data){
+
+var s = new Object();
+function sFor(d){
+	var monthtemp = d.FIELD3.substring(0,7);
+	var month = new Date(monthtemp); 
+	var value = d.FIELD4;
+
+	var cas = d.FIELD1.substring(d.FIELD1.length,0);
+	var country = d.FIELD2;
+	var type = d.FIELD1.substring(d.FIELD1.length,0);
+	
+	//console.log(type);
+	var ckey=month+","+cas+","+country
+	
+      if(s[ckey]){
+		 // console.log("if");
+        s[ckey].value += parseInt(value);
+      }else {
+		  //console.log("else");
+		  
+        s[ckey] = {month:month,value: 0,country:country,type:type};
+		s[ckey].value = parseInt(value);
+      }
+  }
+   console.log(s[p]);
+ 
+
+
+  
+  var nr =[];
+  data.forEach(sFor);
+   for(var p in s){
+	 
+	  //console.log(s[p].country);
+	  nr.push({month:s[p].month,value:s[p].value,country:s[p].country,type:s[p].type});
+  }
+  
+    
+	var Nigeria = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Nigeria' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+var lb = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Liberia' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+
+
+console.log("NR", nr);
+var sl = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Sierra Leone' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+
+
+var ga = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Guinea' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+
+
+var ml = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Mali' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+
+var us = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'United States of America' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+
+
+var sp = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Spain' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+
+
+
+var uk = nr.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'United Kingdom' && d.type ==="Cumulative number of confirmed, probable and suspected Ebola deaths");
+    }
+) ;
+console.log(s.length);
+
+console.log(uk);
+
+console.log(d3.extent(nr, function(d){return new Date(d.month); }));
+  var x = d3.time.scale()
+	 .domain(d3.extent(nr, function(d){return new Date(d.month); }))
+     .range([0, width]);
+
+var y = d3.scale.linear()
+        .domain([0, d3.max(nr, function(d){ return d.value; })])
+        .range([height, 0]);
+ 
+var color2 = d3.scale.category10();
+
+
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+	
+var line = d3.svg.line()
+    .interpolate("basis")
+    .x(function(d) { console.log(d.month,x(d.month));return x(d.month); })
+    .y(function(d) { return y(d.value); });
+
+	
+var svg = d3.select("#linechartdeath").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+	
+		
+		if (error) throw error;
+	
+
+
+  
+ 
+	  
+	  svg.append("g")
+	  
+	  .attr("class","x axis")
+	  .attr("transform","translate(0,"+height+")")
+	  .call(xAxis)
+	  .selectAll("text")
+	  .attr("text-anchore","end")
+	  
+	  
+	  svg.append("g")
+	     .attr("class","y axis")
+		 .call(yAxis)
+		 .append("text")
+		 .attr("transform","rotate(-90)")
+		 .attr("y",1)
+		 .attr("dy",".71em")
+		 .style("text-anchor","end")
+		 .text("Cumulative number of confirmed, probable and suspected Ebola deaths");
+		 
+		 console.log("nr",nr);
+		 
+		 
+var line1 = d3.svg.line()
+		.x(function(d) { return x(new Date(d.month)); })
+		.y(function(d) { return y(d.value); });
+	console.log(x.domain());
+	
+	var all = [
+		['lb', lb],
+		['uk', uk],
+		['sl', sl],
+		['ng', Nigeria],
+		['ml', ml],
+		['us', us],
+		['ga', ga]
+	];
+	
+	all.forEach(function(c){
+		console.log("Coun", c);
+		var sorted = c[1].sort(function(a, b){
+			return d3.ascending(new Date(a.month), new Date(b.month));
+		});
+	});
+	
+	 var country1 = svg.selectAll(".country1")
+	              .data(all)
+				  .enter().append("g")
+				  .attr("class","country1"); 
+				  
+			console.log(all);	  
+		
+	country1.append("path")
+      .attr("class", "line")
+      .style("stroke", function(d, i){
+		return color2(d[0]);
+	  })
+      .attr("d",function(d){return line1(d[1])});	
+	  
+	  country1.append("text")
+      .datum(function(d,i) { return d[1][d[1].length - 1]; })
+       .attr("transform", function(d,i) { if(d.value > 100){return "translate(" + x(d.month) + "," + y(d.value) + ")";} else{return "translate(740," + y(-i*4300) + ")";}  })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.country; });
+	  
+	  
+	  //console.log(svg.selectAll("g.country1")); 
+				  
+			
+      
+});
+
+</script>
+  </body>
+</html>

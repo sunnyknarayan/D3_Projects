@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang="en">
+<head>
+ 
+ <style>
+ path {
+  fill: #ccc;
+  stroke: black;
+  }
+body {
+  font: 10px sans-serif;
+}
+.axis {
+	  font: 10px sans-serif;
+	}
+
+	
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke:black ;
+  stroke-width: 1.5px;
+  }
+  .axis {
+	  font: 10px sans-serif;
+	}
+
+	
+	
+	div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 60px;					
+    height: 28px;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+.docolor{
+ fill: red !important;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+
+
+
+.boundary {
+  fill: none;
+  stroke: black;
+  stroke-width: .5px;
+}
+path.state-boundary {
+  stroke: red;
+  stroke-width: .5px;
+}
+.q0-11{fill:rgb(166,206,227)} .q1-11{fill:rgb(31,120,180)}  .q2-11{fill:rgb(178,223,138)}  .q3-11{fill:rgb(51,160,44)}  .q4-11{fill:rgb(251,154,153)}  .q5-11{fill:rgb(227,26,28)}  .q6-11{fill:rgb(253,191,111)}  .q7-11{fill:rgb(255,127,0)}  .q8-11{fill:rgb(202,178,214)}  .q9-11{fill:rgb(106,61,154)}  .q10-11{fill:rgb(255,255,153)}
+  
+  </style>
+
+ 
+
+ <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="https://d3js.org/d3-queue.v2.min.js"></script>
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+
+
+  </head>
+<body>
+<body bgcolor="white">
+  <p><strong>Info</strong></p>
+ <h3 style="color:blue;">SUNNY KUMAR</h3>
+ <h4><b>#01564159</b></h4>
+ <h4><b>Data Visualization (CIS 602-01)</b></h4>
+ <h1>Visualizing E-bola virus effected countries</h1><br> 
+ <h2>TABLE OF CONTENET</h2><br>
+ 
+ <h2> CONTENT 4</h2>
+ <p> World map with e bola virus effected countries. The map will show  
+ countries in word map with (cumulative number of confirmed, probable, suspected cases). 
+
+ 
+ 
+ 
+
+ This assignment is all my own work. I did not copy the code from any other source.<br>
+ <br/>
+ <br/>
+ <h2> Countries with E-bola death cases</h2>
+ <br/>
+ <br/>
+ <br/>
+
+
+<br/>
+ </br>
+<div id="bar"></div>
+<div id="barchart"></div>
+<script type="text/javascript">  
+var margin = {top: 20, right: 20, bottom: 80, left: 40},
+    width = 800 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+var y = d3.scale.linear().range([height, 0]);
+
+//var	parseDate = d3.time.format("%Y-%m").parse;
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+    //.tickFormat(d3.time.format("%Y-%m"));
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+var svg = d3.select("#bar").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+		  
+
+		  
+	var bar1 = new Object();
+function stopsFor(d){
+	var monthtemp = d.FIELD3.substring(0,7);
+	var month = new Date(monthtemp); 
+//	console.log(month);
+	var value = d.FIELD4;
+	var cas = d.FIELD1.substring(d.FIELD1.length,0);
+	var country = d.FIELD2;
+	var type = d.FIELD1.substring(d.FIELD1.length,0);
+	
+	//console.log(type);
+	var ckey=month+","+cas+","+country
+	//console.log(ckey);
+	//console.log(month);
+      if(bar1[ckey]){
+		 // console.log("if");
+        bar1[ckey].value += parseInt(value);
+      }else {
+		  //console.log("else");
+		  
+        bar1[ckey] = {month:month,value: 0,country:country,type:type};
+		bar1[ckey].value = parseInt(value);
+      }
+  }
+   //console.log("fv")
+ 
+
+d3.json("https://gist.githubusercontent.com/skumar123908/dae8e8fb80de8ab1cf6ea526653be077/raw/6c6a06abc7b09dae5e8a7a55cc2dc3ea6c2c42ac/ebolaeffectedcountries.json", function (error,data){
+  
+  var b1 =[];
+  data.forEach(stopsFor);
+   for(var p in bar1){
+	 
+	  //console.log(stops[p].country);
+	  b1.push({month:bar1[p].month,value:bar1[p].value,country:bar1[p].country,type:bar1[p].type});
+  }
+  console.log(b1);
+    
+	var Nigeria = b1.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Nigeria' && d.type ==="Case fatality rate (CFR) of confirmed Ebola cases");
+    }
+) ;
+
+var lb = b1.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Liberia' && d.type ==="Case fatality rate (CFR) of confirmed Ebola cases");
+    }
+) ;
+
+
+var sl = b1.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Sierra Leone' && d.type ==="Case fatality rate (CFR) of confirmed Ebola cases");
+    }
+) ;
+
+
+var sn = b1.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Senegal' && d.type ==="Case fatality rate (CFR) of confirmed Ebola cases");
+    }
+) ;
+	  
+ 
+ 
+ var new_array1=[Nigeria,lb,sl,sn];
+ 
+ 
+ //console.log(b);
+console.log(new_array1);
+
+
+
+
+  x.domain(new_array1.map(function(d) { console.log(d[0].country);return d[0].country; }));
+  y.domain([0, d3.max(new_array1, function(d) { return d[0].value; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(-5," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.88em");
+    
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 9)
+     // .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Case fatality rate (CFR) of confirmed Ebola cases");
+
+  svg.selectAll("bar1")
+      .data(new_array1)
+    .enter().append("rect")
+      .style("fill", "steelblue")
+      .attr("x", function(d) { return x(d[0].country); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d[0].value); })
+      .attr("height", function(d) { return height - y(d[0].value); });
+
+});
+</script>
+
+ 
+
+<script type="text/javascript">  
+var margin = {top: 20, right: 20, bottom: 50, left: 40},
+    width = 600 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.scale.ordinal().rangeRoundBands([0, width], .01);
+
+var y = d3.scale.linear().range([height, 0]);
+
+//var	parseDate = d3.time.format("%Y-%m").parse;
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+    //.tickFormat(d3.time.format("%Y-%m"));
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+
+
+	
+var svg1 = d3.select("#barchart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+   
+   
+   
+		  
+d3.json("https://gist.githubusercontent.com/skumar123908/dae8e8fb80de8ab1cf6ea526653be077/raw/6c6a06abc7b09dae5e8a7a55cc2dc3ea6c2c42ac/ebolaeffectedcountries.json", function (error,data){
+		  
+	var bar = new Object();
+function stopsFor(d){
+	var monthtemp = d.FIELD3.substring(0,7);
+	var month = new Date(monthtemp); 
+//	console.log(month);
+	var value = d.FIELD4;
+	var cas = d.FIELD1.substring(d.FIELD1.length,0);
+	var country = d.FIELD2;
+	var type = d.FIELD1.substring(d.FIELD1.length,0);
+	
+	//console.log(type);
+	var ckey=month+","+cas+","+country
+	//console.log(ckey);
+	//console.log(month);
+      if(bar[ckey]){
+		 // console.log("if");
+        bar[ckey].value += parseInt(value);
+      }else {
+		  //console.log("else");
+		  
+        bar[ckey] = {month:month,value: 0,country:country,type:type};
+		bar[ckey].value = parseInt(value);
+      }
+  }
+   //console.log("fv")
+ 
+
+
+  
+  var b =[];
+  data.forEach(stopsFor);
+   for(var p in bar){
+	 
+	  //console.log(stops[p].country);
+	  b.push({month:bar[p].month,value:bar[p].value,country:bar[p].country,type:bar[p].type});
+  }
+  console.log(b);
+    
+	var Nigeria = b.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Nigeria' && d.type ==="Case fatality rate (CFR) of suspected Ebola cases");
+    }
+) ;
+
+var lb = b.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Liberia' && d.type ==="Case fatality rate (CFR) of suspected Ebola cases");
+    }
+) ;
+
+
+var sl = b.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Sierra Leone' && d.type ==="Case fatality rate (CFR) of suspected Ebola cases");
+    }
+) ;
+
+
+var sn = b.filter(
+    function (d) {
+		//console.log(d.country);
+        return (d.country === 'Senegal' && d.type ==="Case fatality rate (CFR) of suspected Ebola cases");
+    }
+) ;
+	  
+ /* var new_array = []
+ data.forEach(b);
+ for(var p in bar){
+new_array.push({country:bar[p].country,value:bar[p].value});
+ }
+console.log(new_array); */
+ 
+ var new_array=[Nigeria,lb,sl,sn];
+ 
+ 
+ //console.log(b);
+console.log(new_array);
+
+
+
+
+  x.domain(new_array.map(function(d) { console.log(d[0].country);return d[0].country; }));
+  y.domain([0, d3.max(new_array, function(d) { return d[0].value; })]);
+
+  svg1.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.6em")
+      //.attr("dy", "-.55em")
+      //.attr("transform", "rotate(1)" );
+
+  svg1.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 9)
+      //.attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Case fatality rate (CFR) of suspected Ebola cases");
+
+  svg1.selectAll("bar")
+      .data(new_array)
+    .enter().append("rect")
+      .style("fill", "steelblue")
+      .attr("x", function(d) { return x(d[0].country); })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) { return y(d[0].value); })
+	  
+      .attr("height", function(d) { return height - y(d[0].value); });
+      /* .on('mouseover', tip.show)
+      .on('mouseout', tip.hide);
+ */
+ var myfirst = d3.select("#barchart").select("svg").select("g").selectAll("rect");
+  var mysec = d3.select("#bar").select("svg").select("g").selectAll("rect");
+ 
+  d3.select("#bar").select("svg").select("g").selectAll("rect")
+	.on("mouseenter", MyMouseEnter)
+	.on("mouseout", MyMouseLeave);
+	
+	d3.select("#barchart").select("svg").select("g").selectAll("rect")
+	.on("mouseenter", MyMouseEntero)
+	.on("mouseout", MyMouseLeaveo);
+	
+function MyMouseEnter(){
+	
+	var mybar = d3.select(this);
+	
+	mybar.classed("docolor", true);
+	
+	
+	
+	myfirst.filter(function(d) {
+		return d[0].country == mybar.datum()[0].country;
+	}).classed("docolor", true);
+	
+	}
+	
+function MyMouseLeave(){
+	var mybar = d3.select(this);
+	mybar.classed("docolor", false);
+	
+	myfirst.filter(function(d) {
+		return d[0].country == mybar.datum()[0].country;
+	}).classed("docolor", false);
+	
+}
+	
+	function MyMouseEntero(){
+	
+	var mybar = d3.select(this);
+	
+	mybar.classed("docolor", true);
+	
+	
+	
+	mysec.filter(function(d) {
+		return d[0].country == mybar.datum()[0].country;
+	}).classed("docolor", true);
+	
+	}
+	
+function MyMouseLeaveo(){
+	var mybar = d3.select(this);
+	mybar.classed("docolor", false);
+	
+	mysec.filter(function(d) {
+		return d[0].country == mybar.datum()[0].country;
+	}).classed("docolor", false);
+	
+}
+});
+
+</script>
+
+</body>
+</html>
