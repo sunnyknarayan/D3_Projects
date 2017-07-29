@@ -1,1 +1,84 @@
 
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html lang="en">
+<head>
+  <title>map</title>
+  <style>
+	path.state-boundary {
+	stroke: #000;
+	stroke-width: .5px;
+	}
+	.axis path, .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+	}
+
+	text {
+    font-family: sans-serif;
+    font-size: 11pt;
+	}
+	.title {
+	font-weight: bold;
+	font-size: 13pt;
+	}
+
+
+path.state-boundary {
+  stroke: #000;
+  stroke-width: .5px;
+}
+
+.YlGn .q0-5{fill:rgb(255,255,204)} .YlGn .q1-5{fill:rgb(194,230,153)} .YlGn .q2-5{fill:rgb(120,198,121)} .YlGn .q3-5{fill:rgb(49,163,84)} .YlGn .q4-5{fill:rgb(0,104,55)}
+ body {
+  font-family: sans-serif;
+  font-size: 11pt;
+}
+</style>
+<head><title>brushing</title>
+  <style>
+path.state-boundary {
+  fill: #ddd;
+  stroke: #000;
+  stroke-width: .5px;
+}
+.state-boundary{
+  background: red;
+}
+
+.bar rect {
+fill: #ddd;
+stroke: #000;
+stroke-width: .5px;
+}
+  </style>
+</head>
+<body>
+<body>
+  <p><strong>Info</strong></p>
+<h3 class="name">Sunny Kumar Narayan</h3>
+
+<h4><b>Data Visualization</b></h4>
+
+
+
+  <p><h4> Top-Stolen Car Model by State </p></h4>
+  
+  <div id="most-stolen"></div>
+  <p><h4> Change in Motor Vehicle Theft from 2012 to 2013 by State </p></h4>
+  <div id="change"></div>
+  <p><h4> Multiple Views </p></h4>
+  <div id="brushing"></div>
+  
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src= "https://rawgit.com/lodash/lodash/3.6.0/lodash.min.js"></script>
+  <script type="text/javascript" src="mapview.js"></script>
+  <script type="text/javascript" src="brushing.js"></script>
+  
+  
+  
+  </body>
+</html>
