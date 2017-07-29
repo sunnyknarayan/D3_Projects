@@ -1,0 +1,344 @@
+<meta charset="utf-8">
+<html lang="en">
+<head>
+  <title>Assignment 3</title>
+<style>
+   .link {
+  stroke: #000;
+}
+
+.node {
+  stroke: #fff;
+}
+  
+</style>
+
+</head>
+<body>
+  <strong>Info</strong>
+<h3 class="name">Sunny Kumar</h3>
+<h4><b>#01564159</b></h4>
+<h4><b>Data Visualization (CIS 467)</b></h4>
+<h4><em>Assignment #3</em></h4><br>
+
+This assignment is all my own work. I did not copy the code from any other source.<br>
+ 
+  <div id="force"></div>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://www.cis.umassd.edu/~dkoop/cis467/little-east-wbball-2014.csv"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+ <p><h4> Little East Network </p></h4>
+ 
+ <script type="text/javascript">
+ 
+ var h = 900, w = 800;
+/* Set the color scale we want to use */
+    var color = d3.scale.category20();
+/* Establish/instantiate an SVG container object */
+    var svg = d3.select("body")
+                    .append("svg")
+                    .attr("height",h)
+                    .attr("width",w);
+/* Build the directional arrows for the links/edges */
+        svg.append("svg:defs")
+                    .selectAll("marker")
+                    .data(["end"]) 
+                    .enter().append("svg:marker")
+                    .attr("id", String)
+                    .attr("viewBox", "0 -5 10 10")
+                    .attr("refX", 15)
+                    .attr("refY", -1.5)
+                    .attr("markerWidth", 6)
+                    .attr("markerHeight", 6)
+                    .attr("orient", "auto")
+                    .append("svg:path")
+                    .attr("d", "M0,-5L10,0L0,5");
+/* Pre-Load the json data using the queue library */
+queue()
+    .defer(d3.json, "http://www.cis.umassd.edu/~dkoop/cis467/school-locations.json")
+    .defer(d3.csv, "http://www.cis.umassd.edu/~dkoop/cis467/little-east-wbball-2014.csv")
+    .await(makeDiag); 
+	
+/* Define the main worker or execution function */
+function makeDiag(error, json, csv) {
+  
+  var nodes = new Array();
+  var edges = new Array();
+  
+  json.forEach(function(row){
+	nodes.push({"name" : row.name});
+  });
+  
+  csv.forEach(function(row){
+	
+	var home = row.Home;
+	var away = row.Away;
+	
+	var homeIndex,awayIndex;
+	
+	nodes.forEach(function(row, index){ 
+		if(row.name === home){
+			homeIndex = index;
+		}
+	});
+	
+	
+	nodes.forEach(function(row, index){ 
+		if(row.name === away){
+			awayIndex = index;
+		}
+	});
+	
+	edges.push({"source" : homeIndex, "target" : awayIndex});
+	
+  });
+
+
+	var littleEast = ["Plymouth State", "Rhode Island College", "Southern Maine", "Western Connecticut", "Eastern Connecticut", "UMass Dartmouth", "Keene State", "UMass Boston"];
+					
+    /* Establish the dynamic force behavor of the nodes */
+    var force = d3.layout.force()
+                    .nodes(nodes)
+                    .links(edges)
+                    .size([w,h])
+                    .linkDistance([40])
+                    .charge([-1500])
+                    .gravity(0.3)
+                    .start();
+					
+    /* Draw the edges/links between the nodes */
+    var edges = svg.selectAll("line")
+                    .data(edges)
+                    .enter()
+                    .append("line")
+                    .style("stroke", "#ccc")
+                    .style("stroke-width", 1)
+                    .attr("marker-end", "url(#end)");
+					
+					
+    /* Draw the nodes themselves */                
+    var nodes = svg.selectAll("circle")
+                    .data(nodes)
+                    .enter()
+                    .append("circle")
+                    .attr("r", 10)
+                    .style("fill", function(d){ 
+						
+						if(littleEast.indexOf(d.name) != -1){
+							return "blue";
+						}else{
+							return "brown";
+						}
+						
+					})
+                    .call(force.drag);
+					
+    /* Run the Force effect */
+    force.on("tick", function() {
+               edges.attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; });
+               nodes.attr("cx", function(d) { return d.x; })
+                    .attr("cy", function(d) { return d.y; })
+               }); 
+			   
+			   // End tick func
+}; // End makeDiag worker func
+
+</script>
+
+<p><h3> Little East Major </h3></p>
+
+<script type="text/javascript">
+
+			//Width and height
+			var w = 800;
+			var h = 800;
+			//Define map projection
+			var projection = d3.geo.conicConformal()
+                                                   .parallels([41 + 43/60, 42 + 41/60])
+                                                   .rotate([71 + 1/2, -41])
+                                                   .translate([w/2,h/2 + 300])
+                                                   .scale(4000)
+			//Define path generator
+			var path = d3.geo.path()
+							 .projection(projection);
+							 
+			//Define quantize scale to sort data values into buckets of color
+			var color = d3.scale.quantize()
+								.range(["rgb(237,248,233)","rgb(186,228,179)","rgb(116,196,118)","rgb(49,163,84)","rgb(0,109,44)"]);
+								//Colors taken from colorbrewer.js, included in the D3 download
+			//Create SVG element
+			var mapsvg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+			//Load in school location data
+			d3.json("http://www.cis.umassd.edu/~dkoop/cis467/school-locations.json", function(data) {
+				//Set input domain for color scale
+				color.domain([
+					d3.min(data, function(d) { return d.value; }), 
+					d3.max(data, function(d) { return d.value; }) 
+				]);
+				//Load in GeoJSON data
+				d3.json("http://www.cis.umassd.edu/~dkoop/cis467/new-england.geojson", function(json) {
+					//Merge the school location  data and GeoJSON
+					//Loop through once for each school location data value
+					for (var i = 0; i < data.length; i++) {
+				
+						var dataState = data[i].state;				//Grab state name
+						var dataValue = parseFloat(data[i].value);	//Grab data value, and convert from string to float
+				
+						//Find the corresponding state inside the GeoJSON
+						for (var j = 0; j < json.features.length; j++) {
+						
+							var jsonState = json.features[j].properties.name;
+				
+							if (dataState == jsonState) {
+						
+								//Copy the data value into the JSON
+								json.features[j].properties.value = dataValue;
+								
+								//Stop looking through the JSON
+								break;
+								
+							}
+						}		
+					}
+					//Bind data and create one path per GeoJSON feature
+					mapsvg.selectAll("path")
+					   .data(json.features)
+					   .enter()
+					   .append("path")
+					   .attr("d", path)
+					   .attr("stroke", "black")
+					   .style("fill", "white");
+					//Load in cities data
+					d3.json("http://www.cis.umassd.edu/~dkoop/cis467/school-locations.json", function(data) {
+						
+						mapsvg.selectAll("circle")
+						   .data(data)
+						   .enter()
+						   .append("circle")
+						   .attr("cx", function(d) {
+							   return projection([d.lng, d.lat])[0];
+						   })
+						   .attr("cy", function(d) {
+							   return projection([d.lng, d.lat])[1];
+						   })
+						   .attr("r", 5)
+						   .style("fill", "green")
+						
+					});
+			
+				});
+			
+			});
+			
+		</script>
+
+<p><h3> Umass Dartmouth Games </h3></p>
+<div id="lines"></div>
+
+<script type="text/javascript">
+
+	queue()
+    .defer(d3.json, "http://www.cis.umassd.edu/~dkoop/cis467/school-locations.json")
+    .defer(d3.json, "http://www.cis.umassd.edu/~dkoop/cis467/new-england.geojson")
+    .defer(d3.csv, "http://www.cis.umassd.edu/~dkoop/cis467/little-east-wbball-2014.csv")
+    .await(makeMap); 
+	 
+	  function makeMap(error, json, geo, csv) {
+			
+	  		//Width and height
+			var w = 800;
+			var h = 800;
+
+			//Define map projection
+			var projection = d3.geo.conicConformal()
+		       .parallels([41 + 43/60, 42 + 41/60])
+		       .rotate([71 + 1/2, -41])
+		       .translate([w/2,h/2 + 300])
+		       .scale(4000)
+
+			//Define path generator
+			var path = d3.geo.path()
+						.projection(projection);
+
+			//Create SVG element
+			var map1svg = d3.select("#lines")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+             // define the execution 
+			var allCities = new Array();
+			json.forEach(function(row2){
+				allCities.push([row2.lng, row2.lat]);
+			});
+
+			map1svg.selectAll("path")
+			.data(geo.features)
+			.enter()
+			.append("path")
+			.attr("d", path)
+			.style("stroke", "black")
+			.style("stroke-width", "1")
+			.style("fill", "none")
+
+			map1svg.selectAll("circle").data(allCities)
+			.enter()
+			.append("circle")
+			.attr("cx", function(d) { return projection(d)[0]; })
+			.attr("cy", function(d) { return projection(d)[1]; })
+			.attr("r", 5)
+			.style("fill", "green");
+
+	 		var teams = csv.filter(function(row){
+	 			return row.Home == "UMass Dartmouth" || row.Away == "UMass Dartmouth";
+	 		});
+
+	 		var data = new Array();
+	 		var homeOrAway = new Array();
+
+	 		teams.forEach(function(row){
+	 			var opponent;
+	 			if(row.Home == "UMass Dartmouth"){
+	 				opponent = row.Away;
+	 				homeOrAway.push("blue");
+	 			}else{
+	 				opponent = row.Home;
+	 				homeOrAway.push("red");
+	 			}
+	 			json.forEach(function(row2){
+	 				if(row2.name == opponent){
+	 					data.push([row2.lng, row2.lat]);
+	 				}
+	 			});	
+	 		});
+
+	 		var umass = json.filter(function(d){
+	 			return d.name == "UMass Dartmouth";
+	 		}).map(function(d){
+	 			return [d.lng, d.lat];
+	 		});
+
+	 		map1svg.selectAll("line").data(data)
+			.enter()
+			.append("line")
+			.attr("x1", function(d) { return projection(d)[0]; })
+			.attr("y1", function(d) { return projection(d)[1]; })
+			.attr("x2", function(d) { return projection(umass[0])[0]; })
+			.attr("y2", function(d) { return projection(umass[0])[1]; })
+			.attr("stroke-width", 2)
+			.attr("stroke-opacity", 0.5)
+			.attr("stroke", function(d, i){ return homeOrAway[i]; })
+
+  	}
+ 
+			
+		</script>
+
+		
+</body>
+</html>		
