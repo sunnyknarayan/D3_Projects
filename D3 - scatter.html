@@ -1,0 +1,168 @@
+<meta charset="utf-8">
+<html lang="en">
+<head>
+  <title>2009 vs 2014</title>
+<style>
+    .axis path, .axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+    }
+
+    text {
+    font-family: sans-serif;
+    font-size: 10pt;
+    }
+  
+</style>
+
+</head>
+<body>
+  <strong>Info</strong>
+<h3 class="name">Sunny Kumar</h3>
+
+<h4><b>Data Visualization </b></h4>
+
+
+
+ 
+<p><h2>2009 vs. 2014 SCATTERPLOT</h2></p>  
+  
+  <div id="scatterplot"></div>
+  
+  
+<br>
+  <p><h2>ENGINEERING MAJORS 2014</h2></p>
+  <div id="barchart"></div>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="http://www.cis.umassd.edu/~dkoop/cis467/umassd-eng-2009-2014.js"></script>
+<script type="text/javascript" src="solution.js"></script>
+ 
+ 
+ <script type="text/javascript">
+
+ 
+  function barchart(divId)
+  {
+    var w = 800;
+     var h = 800;
+      var  padding = 40;
+	  console.log(divId);
+    
+	var svg =d3.select(divId).append("svg")
+			.attr("width",w)
+			.attr("height",h);
+
+   var xScale = d3.scale.linear().domain([0,100+d3.max(majors_by_year["2014"], function(d) {return d["totalStudents"];})]).range([padding,w-padding-400]);
+   console.log(majors_by_year["2014"])
+	var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("top");
+     
+	var bar = svg.selectAll("rect")
+			   .data(majors_by_year["2014"])
+			   .enter()
+			   .append("rect")
+			   .attr("width", function(d){  return xScale(d["totalStudents"]) - padding; })
+			   .attr("height",25)
+			   .attr("x",240)
+			   .style("fill","RED")
+			   .attr("y",function(d,i){
+					return i* 25 + i * 5+30;
+					
+			   });
+	//for appending text to the axis
+	var text = svg.selectAll("text")
+			   .data(majors_by_year["2014"])
+			   .enter()
+			   .append("text")
+			   .text( function(d){  return(d["name"]); })
+			  
+			  .attr("x",10)
+			  .style("fill","black")
+			  .attr("y",function(d,i){	return i*25 + i * 5+10;
+					
+			   });
+			   
+	svg.append("g")
+    .attr("class", "axis")
+    .attr("transform", "translate(200," + (20) + ")")
+    .call(xAxis);
+    
+			     
+
+        
+   }
+           
+           
+           
+   
+           
+    barchart("#barchart");     
+
+    
+   </script>
+
+           
+           
+           
+   
+           
+    barchart("#barchart");     
+</script>
+<script>
+function buildScatterplot(divId) {
+    w = 450;
+    h = 450;
+    padding = 60;
+    console.log(divId);
+    var svg = d3.select(divId).append("svg")
+	.attr("width", w)
+	.attr("height", h);
+
+    
+    
+    
+    var xScale = d3.scale.linear().domain([0,d3.max(majors_by_dept, function(d) {return d["total2009"];})]).range([padding,w-padding]);
+    var yScale = d3.scale.linear().domain([0,d3.max(majors_by_dept, function(d) {return d["total2014"];})]).range([h-padding,padding]);
+    
+    var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+    var yAxis = d3.svg.axis().scale(yScale).orient("left");
+    
+    svg.append("g")
+    	.attr("transform", "translate(0, " + (h-padding) + ")")
+    	.attr("class", "axis")
+    	.call(xAxis);
+    svg.append("g")
+    	.attr("transform", "translate(" + padding + ", 0)")
+    	.attr("class", "axis")
+    	.call(yAxis);
+    selection = svg.selectAll("circle")
+    	.data(majors_by_dept).enter().append("circle")
+    	.attr("cx", function(d) { return xScale(d["total2009"]); })
+    	.attr("cy", function(d) { return yScale(d["total2014"]); })
+    	.attr("r", 5)
+    	.style("fill", "blue");
+
+    svg.append("text")
+    	.attr("text-anchor", "middle")
+    	.attr("x", w/2)
+    	.attr("y", h-20)
+    	.text("Majors 2009");
+
+    svg.append("text")
+    	.attr("text-anchor", "middle")
+    	.attr("transform", "rotate(-90)")
+    	.attr("x", -h/2)
+    	.attr("y", 20)
+    	.text("Majors 2014");
+}
+
+buildScatterplot("#scatterplot");
+</script>
+
+
+
+
+</body>
+</html>
